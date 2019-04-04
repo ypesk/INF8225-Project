@@ -9,9 +9,15 @@ from collections import deque
 import math
 import cv2
 import pickle
+import tensorflow as tf
+
+# Pour pouvoir lancer un deuxième modèle pendant le train du premier, pour pouvoir le tester
+# gpu_options = tf.GPUOptions(allow_growth=True)
+# sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+# keras.backend.tensorflow_backend.set_session(sess)
 
 env_name = 'CartPole-v1'  # LunarLander-v2, BipedalWalker-v2, CarRacing-v0, Riverraid-v0, MsPacman-v0
-model_name = env_name + " model_2"
+model_name = env_name + "_only_one_dense"
 env = gym.make(env_name)
 # input_dims = env.reset().shape
 
@@ -31,8 +37,8 @@ def buildModel():
 
     model = Sequential()
     model.add(Dense(16, activation='relu'))
-    model.add(Dense(16, activation='relu'))
-    model.add(Dense(16, activation='relu'))
+    # model.add(Dense(16, activation='relu'))
+    # model.add(Dense(16, activation='relu'))
     model.add(Dense(env.action_space.n, activation='linear'))
 
     model.compile(optimizer=keras.optimizers.Adam(lr=0.001), loss='mse')
@@ -115,10 +121,10 @@ def train_model():
         listNumFrames.append(numFrame)
         if (len(D) > batch_size):
             eps = eps*eps_update
+            model.save(model_name)
+
         # On garde toujours une action random avec proba 0.05
         eps = 0.1 if eps < 0.1 else eps
-
-    model.save(model_name)
     print("done")
 
 
@@ -127,7 +133,7 @@ def play(numGames=1, record=True):
     env = gym.make(env_name)
 
     if record:
-        env = wrappers.Monitor(env, "./renders/CartPole-v1", force=True)
+        env = wrappers.Monitor(env, "./renders/"+env_name, force=True)
     for game in range(numGames):
         state = env.reset()
         env.render()
@@ -144,6 +150,7 @@ def play(numGames=1, record=True):
             phi = phi_
             totalscore += reward
             env.render()
+        print("Game : ", game, ", score : ", totalscore)
     env.close()
 
 

@@ -13,3 +13,14 @@ Le Double DQN peut aider
 Un réseau pour choisir l'action et un pour générer les Q values pour cette action
 il faut aussi les syncroniser de tps en tps
 https://towardsdatascience.com/atari-reinforcement-learning-in-depth-part-1-ddqn-ceaa762a546f?fbclid=IwAR1Lp1978bvsgyDdOFUJ97sx6hSLCseUPXzjK_G2Y8sAqRfeQFOdU_1bVBI
+
+
+Tuto en pleins de parties avec un peu tout (QL, DQL, Policy Gradient, Actor critip, PPO, etc)
+https://medium.freecodecamp.org/diving-deeper-into-reinforcement-learning-with-q-learning-c18d0db58efe
+
+Policy gradients (rapide ??)
+https://medium.com/@gabogarza/deep-reinforcement-learning-policy-gradients-8f6df70404e6
+
+
+DDPG (actor critic)
+https://pemami4911.github.io/blog/2016/08/21/ddpg-rl.html#Tensorflow

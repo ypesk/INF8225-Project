@@ -12,7 +12,7 @@ import pickle
 
 # CartPole-v1, LunarLander-v2, BipedalWalker-v2, CarRacing-v0, Riverraid-v0, MsPacman-v0
 env_name = 'LunarLander-v2'
-model_name = env_name + "_model_4"
+model_name = "./"+env_name + "_model_ddqn"
 env = gym.make(env_name)
 # input_dims = env.reset().shape
 
@@ -31,16 +31,44 @@ def preprocessing(image):
 def buildModel():
 
     model = Sequential()
-    model.add(Dense(64, activation='relu'))
-    model.add(Dense(64, activation='relu'))
+    model.add(Dense(256, activation='relu'))
+    model.add(Dense(256, activation='relu'))
     # model.add(Dense(64, activation='relu'))
     model.add(Dense(env.action_space.n, activation='linear'))
 
-    model.compile(optimizer=keras.optimizers.Adam(lr=0.001), loss='mse')
+    model.compile(optimizer=keras.optimizers.Adam(lr=0.0001), loss='mse')
     return model
 
 
-def learn(model, D):
+def build_target_model(model):
+    # Target Neural Net
+    # target_model = Sequential()
+    # target_model.add(Dense(16, activation='relu'))
+    # target_model.add(Dense(16, activation='relu'))
+    # target_model.add(Dense(16, activation='relu'))
+    # target_model.add(Dense(env.action_space.n, activation='linear'))
+    #
+    # target_model.compile(optimizer=keras.optimizers.Adam(lr=0.001), loss='mse')
+    target_model.set_weights(self.model.get_weights())
+    return target_model
+
+
+def target_q_value(next_state, target_model, model):
+    # formule appliquée : Q_Target = r + γQ(s’,argmax(Q(s’,a,ϴ),ϴ’))
+    # a'_max = argmax(Q(s’,a,ϴ),ϴ’) (DQN normal)
+    action = np.argmax(model.predict(next_state)[0])
+    # target : Q = Q_target(s',a'_max)
+    q_value = target_model.predict(next_state)[0][action]
+
+    return q_value
+
+
+def update_target_model(target_model, model):
+    target_model.set_weights(model.get_weights())
+    return target_model
+
+
+def learn(model, target_model, D):
     minibatch = random.sample(D, batch_size)
 
     x_batch = []
@@ -50,7 +78,7 @@ def learn(model, D):
         if done:
             y_target[0][action] = reward
         else:
-            y_target[0][action] = reward + discount * np.amax(model.predict(phi_)[0])
+            y_target[0][action] = reward + discount*target_q_value(phi_, target_model, model)
         x_batch.append(phi[0])
         y_batch.append(y_target[0])
 
@@ -65,22 +93,22 @@ def learn(model, D):
 
 
 def train_model():
-    # model = buildModel()
-    model = keras.models.load_model(model_name)
+    model = buildModel()
+    target_model = buildModel()
+    #model = keras.models.load_model(model_name)
 
     # On va mémoriser certaines variables a chaque épisode pour voir un peu leur progression
     # Pas encore utilisé
     listScore = []
-    listAvgScore = []
     listEps = []
     listNumFrames = []
-    # eps = 1  # Proba de choisir une action random pour la phase d'exploration
-    eps = 0.14016760486247823
-    eps_update = 0.995  # arrive a 0.1 en 500 000 frames
+    eps = 1  # Proba de choisir une action random pour la phase d'exploration
+    # eps = 0.32864265128599696
+    eps_update = 0.995
     # eps_update = 0.999997697418 #arrive a 0.1 en 1 millions de frames dans l'article
     # eps_update = 0.9997004716 #arrive a 0.05 en 10000 frames dans l'article
 
-    D = deque(maxlen=20000)  # Replay memory (20 000 dernières frames)
+    D = deque(maxlen=500000)  # Replay memory (20 000 dernières frames)
     S = deque(maxlen=100)
     for episode in range(numEpisodes):
         print("starting episode ", episode, " with eps ", eps)
@@ -112,29 +140,27 @@ def train_model():
             phi = phi_
             # env.render()
             if (len(D) > batch_size):
-                model = learn(model, D)
+                model = learn(model, target_model, D)
         if (len(D) > batch_size):
             eps = eps*eps_update
         # On garde toujours une action random avec proba 0.05
-        eps = 0.01 if eps < 0.01 else eps
+        eps = 0.1 if eps < 0.1 else eps
         S.append(totalscore)
+        if (episode % 2):
+            target_model = update_target_model(target_model, model)
         print("score ", totalscore, " at frame ", numFrame,
               " average score on last 100 : ", np.mean(S))
         listEps.append(eps)
         listScore.append(totalscore)
         listNumFrames.append(numFrame)
-        listAvgScore.append(np.mean(S))
-        f = open('objs.pkl', 'wb')
-        pickle.dump([listEps, listScore, listNumFrames, listAvgScore], f)
-        f.close()
-        if (episode % 5):
-            model.save(model_name)
+        model.save(model_name)
 
     print("done")
 
 
 def play(numGames=1, record=True):
     model = keras.models.load_model(model_name)
+    #target_model = keras.models.load_model(model_name)
     env = gym.make(env_name)
 
     if record:
@@ -159,5 +185,5 @@ def play(numGames=1, record=True):
     env.close()
 
 
-train_model()
-# play(1, record=True)
+# train_model()
+play(1, record=True)
