@@ -12,7 +12,7 @@ import pickle
 
 # CartPole-v1, LunarLander-v2, BipedalWalker-v2, CarRacing-v0, Riverraid-v0, MsPacman-v0
 env_name = 'MountainCar-v0'
-model_name = "./"+env_name + "_model_ddqn"
+model_name = env_name + "_model_ddqn"
 env = gym.make(env_name)
 # input_dims = env.reset().shape
 

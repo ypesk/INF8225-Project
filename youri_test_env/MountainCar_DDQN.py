@@ -6,16 +6,17 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation, Conv2D, Flatten
 import random
 from collections import deque
+import math
+import cv2
 import pickle
-import tensorflow as tf
 
 # CartPole-v1, LunarLander-v2, BipedalWalker-v2, CarRacing-v0, Riverraid-v0, MsPacman-v0
-env_name = 'CartPole-v1'
-model_name = env_name + "_model_ddqn"
+env_name = 'MountainCar-v0'
+model_name = "./"+env_name + "_model_ddqn"
 env = gym.make(env_name)
 # input_dims = env.reset().shape
 
-numEpisodes = 2000
+numEpisodes = 5000
 discount = 0.99  # Ratio de discount des reward futures, correspond au gamma dans pas mal d'équations
 batch_size = 50
 
@@ -81,7 +82,7 @@ def learn(model, target_model, D):
         x_batch.append(phi[0])
         y_batch.append(y_target[0])
 
-    x_batch = np.resize(x_batch, (batch_size, 4))
+    x_batch = np.resize(x_batch, (batch_size, 2))
     y_batch = np.resize(y_batch, (batch_size, env.action_space.n))
 
     # x_batch = np.resize(x_batch, (batch_size, input_dims))
@@ -94,7 +95,7 @@ def learn(model, target_model, D):
 def train_model():
     model = buildModel()
     target_model = buildModel()
-    # model = keras.models.load_model(model_name)
+    #model = keras.models.load_model(model_name)
 
     # On va mémoriser certaines variables a chaque épisode pour voir un peu leur progression
     # Pas encore utilisé
@@ -152,14 +153,15 @@ def train_model():
         listEps.append(eps)
         listScore.append(totalscore)
         listNumFrames.append(numFrame)
-        model.save(model_name)
+        if (episode % 5 == 0):
+            model.save(model_name)
 
     print("done")
 
 
 def play(numGames=1, record=True):
     model = keras.models.load_model(model_name)
-    # target_model = keras.models.load_model(model_name)
+    #target_model = keras.models.load_model(model_name)
     env = gym.make(env_name)
 
     if record:

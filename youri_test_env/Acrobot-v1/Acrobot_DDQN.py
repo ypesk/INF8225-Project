@@ -10,7 +10,7 @@ import pickle
 import tensorflow as tf
 
 # CartPole-v1, LunarLander-v2, BipedalWalker-v2, CarRacing-v0, Riverraid-v0, MsPacman-v0
-env_name = 'CartPole-v1'
+env_name = 'Acrobot-v1'
 model_name = env_name + "_model_ddqn"
 env = gym.make(env_name)
 # input_dims = env.reset().shape
@@ -81,7 +81,7 @@ def learn(model, target_model, D):
         x_batch.append(phi[0])
         y_batch.append(y_target[0])
 
-    x_batch = np.resize(x_batch, (batch_size, 4))
+    x_batch = np.resize(x_batch, (batch_size, 6))
     y_batch = np.resize(y_batch, (batch_size, env.action_space.n))
 
     # x_batch = np.resize(x_batch, (batch_size, input_dims))
@@ -143,7 +143,7 @@ def train_model():
         if (len(D) > batch_size):
             eps = eps*eps_update
         # On garde toujours une action random avec proba 0.05
-        eps = 0.1 if eps < 0.1 else eps
+        eps = 0.01 if eps < 0.01 else eps
         S.append(totalscore)
         if (episode % 2):
             target_model = update_target_model(target_model, model)

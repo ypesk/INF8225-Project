@@ -12,7 +12,7 @@ import pickle
 
 # CartPole-v1, LunarLander-v2, BipedalWalker-v2, CarRacing-v0, Riverraid-v0, MsPacman-v0
 env_name = 'LunarLander-v2'
-model_name = "./"+env_name + "_model_ddqn"
+model_name = env_name + "_model_ddqn"
 env = gym.make(env_name)
 # input_dims = env.reset().shape
 
@@ -185,5 +185,5 @@ def play(numGames=1, record=True):
     env.close()
 
 
-# train_model()
-play(1, record=True)
+train_model()
+# play(1, record=True)
