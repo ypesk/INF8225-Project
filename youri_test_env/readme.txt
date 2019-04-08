@@ -25,6 +25,7 @@ https://medium.com/@gabogarza/deep-reinforcement-learning-policy-gradients-8f6df
 DDPG (actor critic)
 https://pemami4911.github.io/blog/2016/08/21/ddpg-rl.html#Tensorflow
 
-Policy gradient :
+Actor critic :
 truc important, dans le modèle, la dernière couche est répétée pour chaque action
+ça doit être ça qui fait qu'on peut faire du continu
 https://yanpanlau.github.io/2016/10/11/Torcs-Keras.html
