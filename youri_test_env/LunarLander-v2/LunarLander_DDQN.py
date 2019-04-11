@@ -16,9 +16,10 @@ model_name = env_name + "_model_ddqn"
 env = gym.make(env_name)
 # input_dims = env.reset().shape
 
-numEpisodes = 2000
+numEpisodes = 1000
 discount = 0.99  # Ratio de discount des reward futures, correspond au gamma dans pas mal d'équations
 batch_size = 50
+eps_min = 0.01
 
 
 def preprocessing(image):
@@ -102,13 +103,14 @@ def train_model():
     listScore = []
     listEps = []
     listNumFrames = []
+    listAvgScore = []
     eps = 1  # Proba de choisir une action random pour la phase d'exploration
     # eps = 0.32864265128599696
     eps_update = 0.995
     # eps_update = 0.999997697418 #arrive a 0.1 en 1 millions de frames dans l'article
     # eps_update = 0.9997004716 #arrive a 0.05 en 10000 frames dans l'article
 
-    D = deque(maxlen=500000)  # Replay memory (20 000 dernières frames)
+    D = deque(maxlen=50000)  # Replay memory
     S = deque(maxlen=100)
     for episode in range(numEpisodes):
         print("starting episode ", episode, " with eps ", eps)
@@ -117,10 +119,8 @@ def train_model():
         phi = preprocessing(state)
         totalscore = 0
         numFrame = 1
-        # env.render()
         nextActionIn = 0
         while not done:
-            # env.render()
             numFrame += 1
             if (random.random() > eps):
                 Q = model.predict(phi)
@@ -128,31 +128,29 @@ def train_model():
             else:
                 action = random.randint(0, env.action_space.n-1)
             state_, reward, done, info = env.step(action)
-            # reward -= 1  # On pénalise chaque frame, car l'agent a tendance à rester en haut sans prendre de risque
             totalscore += reward
-            # if done:
-            #     # On pénalise quand on fail, il parait que c'est mieux, j'aurais peut être pas du le faire pour le vaisseau
-            #     if totalscore < 500:
-            #         reward = -100
+
             phi_ = preprocessing(state_)
             experience = (phi, action, reward, phi_, done)
             D.append(experience)
             phi = phi_
-            # env.render()
             if (len(D) > batch_size):
                 model = learn(model, target_model, D)
         if (len(D) > batch_size):
             eps = eps*eps_update
-        # On garde toujours une action random avec proba 0.05
-        eps = 0.1 if eps < 0.1 else eps
+        eps = eps_min if eps < eps_min else eps
         S.append(totalscore)
-        if (episode % 2):
+        if (episode % 5):
             target_model = update_target_model(target_model, model)
         print("score ", totalscore, " at frame ", numFrame,
               " average score on last 100 : ", np.mean(S))
         listEps.append(eps)
         listScore.append(totalscore)
         listNumFrames.append(numFrame)
+        listAvgScore.append(np.mean(S))
+        f = open('objs.pkl', 'wb')
+        pickle.dump([listEps, listScore, listNumFrames, listAvgScore], f)
+        f.close()
         model.save(model_name)
 
     print("done")

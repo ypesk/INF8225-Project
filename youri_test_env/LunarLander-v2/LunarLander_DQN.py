@@ -12,11 +12,11 @@ import pickle
 
 # CartPole-v1, LunarLander-v2, BipedalWalker-v2, CarRacing-v0, Riverraid-v0, MsPacman-v0
 env_name = 'LunarLander-v2'
-model_name = env_name + "_model_4"
+model_name = env_name + "_model_dqn"
 env = gym.make(env_name)
 # input_dims = env.reset().shape
 
-numEpisodes = 2000
+numEpisodes = 500
 discount = 0.99  # Ratio de discount des reward futures, correspond au gamma dans pas mal d'équations
 batch_size = 50
 
@@ -65,8 +65,8 @@ def learn(model, D):
 
 
 def train_model():
-    # model = buildModel()
-    model = keras.models.load_model(model_name)
+    model = buildModel()
+    # model = keras.models.load_model(model_name)
 
     # On va mémoriser certaines variables a chaque épisode pour voir un peu leur progression
     # Pas encore utilisé
@@ -74,8 +74,8 @@ def train_model():
     listAvgScore = []
     listEps = []
     listNumFrames = []
-    # eps = 1  # Proba de choisir une action random pour la phase d'exploration
-    eps = 0.14016760486247823
+    eps = 1  # Proba de choisir une action random pour la phase d'exploration
+    # eps = 0.14016760486247823
     eps_update = 0.995  # arrive a 0.1 en 500 000 frames
     # eps_update = 0.999997697418 #arrive a 0.1 en 1 millions de frames dans l'article
     # eps_update = 0.9997004716 #arrive a 0.05 en 10000 frames dans l'article
