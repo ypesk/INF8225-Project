@@ -134,11 +134,11 @@ def train_model():
 
 
 def play(numGames=1, record=True):
-    model = keras.models.load_model(model_name)
+    model = keras.models.load_model("models/LunarLander-v2_model_dqn")
     env = gym.make(env_name)
 
     if record:
-        env = wrappers.Monitor(env, "./renders/"+model_name, force=True)
+        env = wrappers.Monitor(env, "./renders/LunarLander-v2_DQN_500", force=True)
     for game in range(numGames):
         state = env.reset()
         env.render()
@@ -159,5 +159,5 @@ def play(numGames=1, record=True):
     env.close()
 
 
-train_model()
-# play(1, record=True)
+# train_model()
+play(1, record=True)

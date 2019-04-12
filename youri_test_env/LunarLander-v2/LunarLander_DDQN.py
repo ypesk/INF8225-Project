@@ -112,14 +112,19 @@ def train_model():
 
     D = deque(maxlen=50000)  # Replay memory
     S = deque(maxlen=100)
+    env = gym.make(env_name)
     for episode in range(numEpisodes):
+
         print("starting episode ", episode, " with eps ", eps)
         done = False
+        if (episode % 50 == 0):
+            print("Recording this episode")
+            env = wrappers.Monitor(env, "./renders/"+str(episode)+"_"+str(eps), force=True)
+            env.render()
         state = env.reset()
         phi = preprocessing(state)
         totalscore = 0
         numFrame = 1
-        nextActionIn = 0
         while not done:
             numFrame += 1
             if (random.random() > eps):
@@ -136,6 +141,8 @@ def train_model():
             phi = phi_
             if (len(D) > batch_size):
                 model = learn(model, target_model, D)
+            if (episode % 50 == 0):
+                env.render()
         if (len(D) > batch_size):
             eps = eps*eps_update
         eps = eps_min if eps < eps_min else eps
@@ -157,12 +164,12 @@ def train_model():
 
 
 def play(numGames=1, record=True):
-    model = keras.models.load_model(model_name)
+    model = keras.models.load_model("models/LunarLander-v2_model_ddqn")
     #target_model = keras.models.load_model(model_name)
     env = gym.make(env_name)
 
     if record:
-        env = wrappers.Monitor(env, "./renders/"+model_name, force=True)
+        env = wrappers.Monitor(env, "./renders/LunarLander-v2_DDQN_500", force=True)
     for game in range(numGames):
         state = env.reset()
         env.render()
