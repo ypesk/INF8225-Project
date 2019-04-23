@@ -8,3 +8,9 @@ L'environnement principal testé est LunarLander-v2.
 Le code principal pour le DDQN et DQN est donc src/LunarLander-v2/LunarLander_DQN.py ou LunarLander_DDQN.py
 
 Le code pour le policy gradient est dans src/PolicyGradients
+
+Les dépendences principales sont : 
+	- gym
+	- Keras
+	- tensorflow
+	- numpy

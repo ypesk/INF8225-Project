@@ -7,7 +7,6 @@ from keras.layers import Dense, Activation, Conv2D, Flatten
 import random
 from collections import deque
 import math
-import cv2
 import pickle
 
 # CartPole-v1, LunarLander-v2, BipedalWalker-v2, CarRacing-v0, Riverraid-v0, MsPacman-v0
