@@ -14,3 +14,5 @@ Les dépendences principales sont :
 	- Keras
 	- tensorflow
 	- numpy
+	- pandas
+	- Torch
